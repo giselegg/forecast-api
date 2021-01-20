@@ -1,0 +1,9 @@
+# Env variables
+.env
+
+# Local folders
+env/
+__pycache__/
+
+# Tests coverage
+.coverage
