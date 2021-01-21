@@ -64,7 +64,7 @@ Para testar a saúde da API, fazendo a seguinte requisição deve retornar o tim
 ```
 
 ## Fonte
-**[API Externa] HG Weather** 
+**[API Externa] HG Weather**
 https://hgbrasil.com/status/weather
 
 ## That's all folks!

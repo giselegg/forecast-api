@@ -7,3 +7,6 @@ __pycache__/
 
 # Tests coverage
 .coverage
+
+# Database
+db.sqlite3

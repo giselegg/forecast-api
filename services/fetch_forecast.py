@@ -5,12 +5,12 @@ from decouple import config
 def fetch_forecast(city):
     """
     Fetches forecast in HG Weather API
-    
+
     Parameters:
         str: city
-    
+
     Return
-        dict: 
+        dict:
             {
                 "temp": int,
                 "date": str,
