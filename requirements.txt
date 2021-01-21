@@ -1,2 +1,6 @@
 fastapi==0.63.0
+pytest==6.2.1
+pytest-cov==2.11.1
+python-decouple==3.4
+requests==2.25.1
 uvicorn==0.13.3
