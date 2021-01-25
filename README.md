@@ -63,8 +63,53 @@ Para testar a saúde da API, fazendo a seguinte requisição deve retornar o tim
 [GET] http://localhost:8000/forecast/<city_name>
 ```
 
+### 6 CRUD usuários
+
+**Retornar todos os usuários**
+```
+[GET] http://localhost:8000/users/
+```
+
+**Adicionar usuário**
+
+Enviar JSON com:
+```
+{
+    "username": <nome_usuario>,
+    "password": <senha>,
+}
+```
+para:
+```
+[POST] http://localhost:8000/users/
+```
+
+**Remover usuário**
+```
+[DELETE] http://localhost:8000/users/<id>
+```
+
+**Atualizar usuário**
+
+Enviar JSON com:
+```
+{
+    "username": <nome_usuario>,
+    "password": <senha>,
+}
+```
+para:
+```
+[PUT] http://localhost:8000/users/<id>
+```
+
+## Testes unitários
+```
+python3 -m pytest
+```
+
 ## Fonte
-**[API Externa] HG Weather** 
+**[API Externa] HG Weather**
 https://hgbrasil.com/status/weather
 
 ## That's all folks!

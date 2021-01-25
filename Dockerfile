@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 
 # Setting workdir
 WORKDIR /forecast_api
@@ -10,10 +10,11 @@ RUN apt-get update && \
 
 # Install requirements
 COPY "requirements.txt" ./
-RUN python3.7 -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
 # Copy project to workdir
 COPY ["app.py", ".env", "./"]
+COPY ["crud.py", "database.py", "models.py", "schemas.py", "./"]
 COPY services/ services/
 
 EXPOSE 8000
