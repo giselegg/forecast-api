@@ -4,7 +4,7 @@ API para consultar a previsão do tempo, filtrando por cidade, para 7 dias.
 
 ## Requerimentos
 
-- Python 3.7+
+- Python 3.8.5
 - Libs: requirements.txt
 
 - Criar uma chave na HG Weather para consulta pública:

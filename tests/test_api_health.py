@@ -6,10 +6,7 @@ from app import app
 client = TestClient(app)
 
 
-def test_health() -> None:
-    """
-    Checks if health returns timestamp
-    """
+def test_health():
     response = client.get("/health/")
     assert response.status_code == 200
 
@@ -17,13 +14,3 @@ def test_health() -> None:
         assert datetime.fromisoformat(response.json().get("timestamp"))
     except ValueError:
         assert False
-
-
-def test_fail_get_forecast():
-    response = client.get("/forecast")
-    assert response.status_code == 404
-
-
-def test_assert_get_forecast():
-    response = client.get("forecast/palhoça")
-    assert response.status_code == 200
