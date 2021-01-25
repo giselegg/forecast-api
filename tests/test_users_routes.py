@@ -11,26 +11,31 @@ class TestUsers:
     def setup(self):
         self.client = TestClient(app)
 
+
     def test_success_create_user1(self):
-        response = self.client.post("/users/", json=user1)
+        response = self.client.post("/users", json=user1)
 
         assert response.status_code == 201
+
 
     def test_success_create_user2(self):
-        response = self.client.post("/users/", json=user2)
+        response = self.client.post("/users", json=user2)
 
         assert response.status_code == 201
 
+
     def test_fail_create_user(self):
-        response = self.client.post("/users/", json=user1)
+        response = self.client.post("/users", json=user1)
 
         assert response.status_code == 400
 
+
     def test_success_retrieve_all_users(self):
-        response = self.client.get("/users/")
+        response = self.client.get("/users")
 
         assert response.status_code == 200
         assert len(response.json()) == 2
+
 
     def test_success_retrieve_single_user(self):
         response = self.client.get("/users/1")
@@ -44,10 +49,12 @@ class TestUsers:
         assert response.status_code == 200
         assert dumps(response.json(), sort_keys=True) == sorted_user1
 
+
     def test_fail_retrieve_single_user(self):
         response = self.client.get("/users/3")
 
         assert response.status_code == 400
+
 
     def test_success_update_user(self):
         update = {
@@ -58,6 +65,7 @@ class TestUsers:
         response = self.client.put("/users/1", json=update)
         assert response.status_code == 201
 
+
     def test_fail_update_user(self):
         update = {
             "username": "giselegg",
@@ -67,6 +75,7 @@ class TestUsers:
         response = self.client.put("/users/3", json=update)
         assert response.status_code == 400
 
+
     def test_success_remove_user(self):
         response = self.client.delete("/users/2")
 
@@ -74,6 +83,7 @@ class TestUsers:
 
         response_get = self.client.get("/users/")
         assert len(response_get.json()) == 1
+
 
     def test_fail_remove_user(self):
         response = self.client.delete("/users/3")
