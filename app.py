@@ -87,7 +87,7 @@ def get_all_users(db: Session = Depends(get_db)):
     )
 
 
-@app.get("/users/{user_id}/", status_code=status.HTTP_200_OK)
+@app.get("/users/{user_id}", status_code=status.HTTP_200_OK)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     if result := retrieve_user_by_id(db, user_id):
         return result
@@ -113,7 +113,7 @@ def post_user(
     )
 
 
-@app.delete("/users/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not remove_user(db, user_id):
         raise HTTPException(
@@ -122,18 +122,17 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         )
 
 
-@app.put("/users/{user_id}/", status_code=status.HTTP_201_CREATED)
+@app.put("/users/{user_id}", status_code=status.HTTP_201_CREATED)
 def put_user(user_id: int, user: UpdateUserSchema, db: Session = Depends(get_db)):
-    username = retrieve_user_by_username(db, user.username)
-    if username:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already registered"
-        )
-
     if result := update_user(
         db, user_id, {
             key: value for key, value in user if value
         }
     ):
         return result
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Username already registered"
+    )
+
