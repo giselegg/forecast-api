@@ -12,6 +12,12 @@ class TestUsers:
         self.client = TestClient(app)
 
 
+    def test_fail_retrieve_all_users(self):
+        response = self.client.get("/users")
+
+        assert response.status_code == 404
+
+
     def test_success_create_user1(self):
         response = self.client.post("/users", json=user1)
 

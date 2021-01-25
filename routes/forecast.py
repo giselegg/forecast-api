@@ -12,6 +12,9 @@ def empty_forecast():
 
 @forecast_router.get("/{city_name}")
 def get_forecast(city_name: str):
-    response = fetch_forecast(city_name)
-    if response:
-        return response
+    try:
+        response = fetch_forecast(city_name)
+        if response:
+            return response
+    except Exception as e:
+        raise HTTPException(status_code=400)
