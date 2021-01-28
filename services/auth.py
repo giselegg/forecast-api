@@ -37,3 +37,14 @@ def check_user_id(user_id, db, credentials):
             headers={"WWW-Authenticate": "Basic"},
         )
     return True
+
+
+def check_username(db, user, credentials):
+    username = retrieve_user_by_username(db, user.username)
+    if username and username.username != credentials.username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    # If username doesn't exist on db or if it exists and it's already user's username
+    return True
