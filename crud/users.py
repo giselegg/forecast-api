@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 
 from models.users import Users
 from schemas.users import CreateUserSchema, UpdateUserSchema
@@ -16,7 +16,8 @@ def create_user(db: Session, user: CreateUserSchema):
 
 
 def retrieve_all_users(db: Session):
-    return db.query(users).all()
+    fields = ["id", "username"]
+    return db.query(users).options(load_only(*fields)).order_by(users.id).all()
 
 
 def retrieve_user_by_id(db: Session, user_id: int):

@@ -6,90 +6,61 @@ from fastapi import (
     Response,
     status
 )
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from crud.users import (
-    create_user,
     retrieve_all_users,
     retrieve_user_by_id,
     retrieve_user_by_username,
     update_user,
     remove_user
 )
-from database import Base, SessionLocal, engine
-from schemas.users import CreateUserSchema, UpdateUserSchema
+from database.config import SessionLocal
+from database.get_db import get_db
+from schemas.users import UpdateUserSchema
+from services.auth import check_authorization, check_user_id
 
 
-# Database
-Base.metadata.create_all(bind=engine)
-
-def get_db():
-    """
-    Returns DB session
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
+# Security
+security = HTTPBasic()
 
 # Routes
 users_router = APIRouter(prefix="/users")
 
-@users_router.get("", status_code=status.HTTP_200_OK)
-def get_all_users(db: Session = Depends(get_db)):
-    if result := retrieve_all_users(db):
-        return result
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="There are no users registered",
-    )
+@users_router.get("", status_code=status.HTTP_200_OK)
+def get_all_users(db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
+    if check_authorization(db, credentials):
+        if result := retrieve_all_users(db):
+            return result
 
 
 @users_router.get("/{user_id}", status_code=status.HTTP_200_OK)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    if result := retrieve_user_by_id(db, user_id):
-        return result
-
-    raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User ID not found"
-        )
-
-
-@users_router.post("", status_code=status.HTTP_201_CREATED)
-def post_user(user: CreateUserSchema, db: Session = Depends(get_db)):
-    username = retrieve_user_by_username(db, user.username)
-    if not username:
-        return create_user(db, user)
-
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Username already registered"
-    )
+def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
+    if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
+        if result := retrieve_user_by_id(db, user_id):
+            return result
 
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    if remove_user(db, user_id):
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="User ID not found"
-    )
+def delete_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
+    if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
+        if remove_user(db, user_id):
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @users_router.put("/{user_id}", status_code=status.HTTP_201_CREATED)
-def put_user(user_id: int, user: UpdateUserSchema, db: Session = Depends(get_db)):
-    if result := update_user(
-        db, user_id, {
-            key: value for key, value in user if value
-        }
-    ):
-        return result
+def put_user(user_id: int, user: UpdateUserSchema, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
+    if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
+        username = retrieve_user_by_username(db, user.username)
+        if not username:
+            if result := update_user(
+                db, user_id, {
+                    key: value for key, value in user if value
+                }
+            ):
+                return result
 
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
