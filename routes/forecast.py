@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from database.config import SessionLocal
+from sqlalchemy.orm import Session
 
+from database.config import SessionLocal
 from database.get_db import get_db
 from services.auth import check_authorization
 from services.fetch_forecast import fetch_forecast
-from sqlalchemy.orm import Session
+from services.logger import RequestLogger
 
+
+# Logger
+logger = RequestLogger(__name__, "requests.log").logger
 
 # Security
 security = HTTPBasic()
@@ -27,6 +31,8 @@ def get_forecast(city_name: str, db: Session = Depends(get_db), credentials: HTT
         try:
             response = fetch_forecast(city_name)
             if response:
+                logger.info(f"username: {credentials.username}, request: forecast, result: {response}")
                 return response
         except Exception as e:
             raise HTTPException(status_code=400)
+
