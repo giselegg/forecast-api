@@ -20,7 +20,11 @@ from database.config import SessionLocal
 from database.get_db import get_db
 from schemas.users import UpdateUserSchema
 from services.auth import check_authorization, check_user_id
+from services.logger import RequestLogger
 
+
+# Logger
+logger = RequestLogger(__name__, "requests.log").logger
 
 # Security
 security = HTTPBasic()
@@ -33,6 +37,7 @@ users_router = APIRouter(prefix="/users")
 def get_all_users(db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
     if check_authorization(db, credentials):
         if result := retrieve_all_users(db):
+            logger.info(f"username: {credentials.username}, request: get all users")
             return result
 
 
@@ -40,6 +45,7 @@ def get_all_users(db: Session = Depends(get_db), credentials: HTTPBasicCredentia
 def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
     if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
         if result := retrieve_user_by_id(db, user_id):
+            logger.info(f"username: {credentials.username}, request: get user")
             return result
 
 
@@ -47,6 +53,7 @@ def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasic
 def delete_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
     if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
         if remove_user(db, user_id):
+            logger.info(f"username: {credentials.username}, request: remove user")
             return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -60,6 +67,7 @@ def put_user(user_id: int, user: UpdateUserSchema, db: Session = Depends(get_db)
                     key: value for key, value in user if value
                 }
             ):
+                logger.info(f"username: {credentials.username}, request: update user")
                 return result
 
     raise HTTPException(
