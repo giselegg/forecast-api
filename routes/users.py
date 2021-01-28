@@ -19,7 +19,7 @@ from crud.users import (
 from database.config import SessionLocal
 from database.get_db import get_db
 from schemas.users import UpdateUserSchema
-from services.auth import check_authorization, check_user_id
+from services.auth import check_authorization, check_user_id, check_username
 from services.logger import RequestLogger
 
 
@@ -40,6 +40,11 @@ def get_all_users(db: Session = Depends(get_db), credentials: HTTPBasicCredentia
             logger.info(f"username: {credentials.username}, request: get all users")
             return result
 
+    raise HTTPException(
+        status_code=400,
+        detail="Username or password incorrect"
+    )
+
 
 @users_router.get("/{user_id}", status_code=status.HTTP_200_OK)
 def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
@@ -47,6 +52,11 @@ def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasic
         if result := retrieve_user_by_id(db, user_id):
             logger.info(f"username: {credentials.username}, request: get user")
             return result
+
+    raise HTTPException(
+        status_code=400,
+        detail="Username or password incorrect"
+    )
 
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -56,21 +66,25 @@ def delete_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBa
             logger.info(f"username: {credentials.username}, request: remove user")
             return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+    raise HTTPException(
+        status_code=400,
+        detail="Username or password incorrect"
+    )
+
 
 @users_router.put("/{user_id}", status_code=status.HTTP_201_CREATED)
 def put_user(user_id: int, user: UpdateUserSchema, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
-    if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
-        username = retrieve_user_by_username(db, user.username)
-        if not username:
-            if result := update_user(
-                db, user_id, {
-                    key: value for key, value in user if value
-                }
-            ):
-                logger.info(f"username: {credentials.username}, request: update user")
-                return result
+    if check_authorization(db, credentials) and check_user_id(user_id, db, credentials) and check_username(db, user, credentials):
+        if result := update_user(
+            db, user_id, {
+                key: value for key, value in user if value
+            }
+        ):
+            logger.info(f"username: {credentials.username}, request: update user")
+            return result
+
 
     raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Username already registered"
+        status_code=400,
+        detail="Username or password incorrect"
     )
