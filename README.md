@@ -19,6 +19,9 @@ git clone https://github.com/giselegg/forecast-api
 ### 2 Chave da API da HG Weather
 Salvar a chave num arquivo .env na variável KEY
 
+exemplo:
+KEY=1234
+
 ### 3a Com Docker
 - Criar o container:
 ```
@@ -48,29 +51,18 @@ pip install -r requirements.txt
 
 - Rodar API:
 ```
-uvicorn app:app
+uvicorn app:app --reload
 ```
 
-### 4 Testar saúde da API
-Para testar a saúde da API, fazendo a seguinte requisição deve retornar o timestamp da mesma.
+### 4 Testar saúde da API (opcional)
+Para testar a saúde da API, ao fazer a seguinte requisição, deve-se retornar um timestamp atual.
 
 ```
 [GET] http://localhost:8000/health
 ```
 
-### 5 Consulta de previsão do tempo
-```
-[GET] http://localhost:8000/forecast/<city_name>
-```
-
-### 6 CRUD usuários
-
-**Retornar todos os usuários**
-```
-[GET] http://localhost:8000/users/
-```
-
-**Adicionar usuário**
+### 5 Registrar usuário (obrigatório)
+Para se verificar a previsão do tempo é necessário primeiro registrar um usuário.
 
 Enviar JSON com:
 ```
@@ -79,9 +71,33 @@ Enviar JSON com:
     "password": <senha>,
 }
 ```
+
 para:
 ```
-[POST] http://localhost:8000/users/
+[POST] http://localhost:8000/register/
+```
+
+### 6 Consultar previsão do tempo
+
+Através de autenticação HTTP Basic com os dados do usuário criado no item 5, a previsão pode ser consultado no seguinte endereço:
+
+```
+[GET] http://localhost:8000/forecast/<city_name>
+```
+
+![Forecast](assets/images/forecast.png)
+
+### 7 CRUD usuários
+Todos os endpoints a seguir necessitam de autenticação.
+
+**Retornar todos os usuários**
+```
+[GET] http://localhost:8000/users/
+```
+
+**Retornar um usuário**
+```
+[GET] http://localhost:8000/users/<id>
 ```
 
 **Remover usuário**
@@ -103,13 +119,26 @@ para:
 [PUT] http://localhost:8000/users/<id>
 ```
 
+**Atenção:** O usuário pode retornar, remover ou atualizar apenas o seu próprio usuário!
+
 ## Testes unitários
+Para rodar todos os testes:
 ```
 python3 -m pytest
 ```
+
+Cobertura atual:
+![Coverage](assets/images/coverage.png)
+
+## Log das requisições
+Todas as requisições feitas pelos usuários ficam salvas em requests.logs.
+
+Exemplo:
+![Logs](assets/images/requests.png)
 
 ## Fonte
 **[API Externa] HG Weather**
 https://hgbrasil.com/status/weather
 
 ## That's all folks!
+![Courage](assets/images/courage.gif)
