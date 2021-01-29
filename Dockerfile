@@ -13,9 +13,10 @@ COPY "requirements.txt" ./
 RUN python3 -m pip install -r requirements.txt
 
 # Copy project to workdir
-COPY ["app.py", "database.py", ".env", "./"]
+COPY ["app.py", ".env", "./"]
 
 COPY crud/ crud/
+COPY database/ database/
 COPY models/ models/
 COPY routes/ routes/
 COPY schemas/ schemas/
