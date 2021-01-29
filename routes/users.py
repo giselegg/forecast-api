@@ -50,7 +50,7 @@ def get_all_users(db: Session = Depends(get_db), credentials: HTTPBasicCredentia
 def get_user(user_id: int, db: Session = Depends(get_db), credentials: HTTPBasicCredentials = Depends(security)):
     if check_authorization(db, credentials) and check_user_id(user_id, db, credentials):
         if result := retrieve_user_by_id(db, user_id):
-            logger.info(f"username: {credentials.username}, request: get user")
+            logger.info(f"username: {credentials.username}, request: retrieve user")
             return result
 
     raise HTTPException(

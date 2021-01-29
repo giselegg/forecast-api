@@ -3,6 +3,11 @@ from fastapi import HTTPException, status
 from secrets import compare_digest
 
 from crud.users import retrieve_user_by_username, retrieve_user_by_id
+from services.logger import RequestLogger
+
+
+# Logger
+logger = RequestLogger(__name__, "requests.log").logger
 
 
 def check_authorization(db, credentials):
@@ -19,6 +24,8 @@ def check_authorization(db, credentials):
 
     if correct_username and correct_password:
         return True
+
+    logger.error(f"username: {credentials.username}, request: wrong password")
     return False
 
 
@@ -31,6 +38,7 @@ def check_user_id(user_id, db, credentials):
             headers={"WWW-Authenticate": "Basic"},
         )
     if user_id != db_user.id:
+        logger.error(f"username: {credentials.username}, request: unauthorized")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="It's not possible to access another user's account",
@@ -42,6 +50,7 @@ def check_user_id(user_id, db, credentials):
 def check_username(db, user, credentials):
     username = retrieve_user_by_username(db, user.username)
     if username and username.username != credentials.username:
+        logger.error(f"username: {credentials.username}, request: username already exists")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already registered"
